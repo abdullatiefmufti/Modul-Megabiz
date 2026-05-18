@@ -4,22 +4,22 @@ const megaBizTutorials = [
         judul: "Panduan Penambahan Rekening MegaBiz",
         deskripsi: "Walkthrough langkah demi langkah melakukan penambahan rekening melalui User ID SYSADMIN hingga proses otorisasi Pending Task.",
         kategori: "Account Management",
-        linkDownload: "files/Panduan_Penambahan_Rekening_MegaBiz.pdf",
-        linkScribe: "https://scribehow.com/"
+        // Sesuaikan dengan nama file PDF di folder 'files'
+        linkDownload: "files/Modul_Penambahan_Rekening.pdf" 
     },
     {
         judul: "International Transfer By MegaBiz",
         deskripsi: "Panduan komprehensif untuk menginisiasi transfer internasional, pengisian detail penerima, tujuan transaksi, hingga deklarasi kepatuhan.",
         kategori: "Transfer Management",
-        linkDownload: "files/International_Transfer_By_MegaBiz.pdf",
-        linkScribe: "https://scribehow.com/"
+        // Sesuaikan dengan nama file PDF di folder 'files'
+        linkDownload: "files/Modul_International_Transfer.pdf"
     }
 ];
 
 const tutorialContainer = document.getElementById('tutorialContainer');
 const searchInput = document.getElementById('searchInput');
 
-// 2. Fungsi Render Kartu ke HTML (Termasuk Auto-Numbering)
+// 2. Fungsi Render Kartu ke HTML (Hanya ada tombol Download)
 function renderTutorials(data) {
     tutorialContainer.innerHTML = ''; // Kosongkan kontainer sebelum render
 
@@ -29,7 +29,7 @@ function renderTutorials(data) {
     }
 
     data.forEach((item, index) => {
-        // Auto-numbering berdasarkan indeks array (dimulai dari 1)
+        // Auto-numbering
         const nomorUrut = index + 1; 
 
         const cardHTML = `
@@ -44,12 +44,9 @@ function renderTutorials(data) {
                 <h2 class="text-lg font-bold text-gray-800 mb-2 leading-tight">${item.judul}</h2>
                 <p class="text-sm text-gray-600 mb-6 flex-grow">${item.deskripsi}</p>
                 
-                <div class="flex flex-col gap-2 mt-auto">
+                <div class="flex flex-col mt-auto">
                     <a href="${item.linkDownload}" download class="text-center bg-mega hover:bg-orange-600 text-white font-medium py-2 px-4 rounded transition-colors text-sm">
                         Download PDF
-                    </a>
-                    <a href="${item.linkScribe}" target="_blank" rel="noopener noreferrer" class="text-center border border-mega text-mega hover:bg-orange-50 font-medium py-2 px-4 rounded transition-colors text-sm">
-                        Buka Panduan Interaktif
                     </a>
                 </div>
             </div>
