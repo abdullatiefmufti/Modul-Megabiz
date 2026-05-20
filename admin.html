@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Upload Modul MegaBiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 p-10 font-sans">
+
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-200">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-4">CMS Admin: Tambah Modul Baru</h1>
+        
+        <form id="form-upload" class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Judul Modul</label>
+                <input type="text" id="input-judul" required class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500" placeholder="Contoh: Single Transfer to My Bank">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Kategori</label>
+                <select id="input-kategori" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500">
+                    <option value="Account Management">Account Management</option>
+                    <option value="Transfer Management">Transfer Management</option>
+                    <option value="Liquidity Management">Liquidity Management</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Deskripsi Singkat</label>
+                <textarea id="input-deskripsi" required rows="3" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500" placeholder="Deskripsi panduan..."></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Nama File HTML Interaktif</label>
+                <input type="text" id="input-link-interaktif" required class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500" placeholder="Contoh: modul_single_interactive.html">
+                <p class="text-xs text-gray-500 mt-1">Pastikan file HTML ini sudah ada di folder Vercel Anda.</p>
+            </div>
+
+            <div class="bg-orange-50 p-4 rounded border border-orange-100">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Upload File PDF Modul</label>
+                <input type="file" id="input-file-pdf" accept="application/pdf" required class="w-full text-sm">
+            </div>
+
+            <button type="submit" id="btn-submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded mt-4 transition-colors">
+                Upload & Simpan Modul
+            </button>
+            
+            <p id="status-pesan" class="text-center font-bold text-sm hidden mt-3"></p>
+        </form>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 1. HUBUNGKAN KE SUPABASE (Ganti dengan data dari Notepad Anda!)
+        // =========================================================================
+        const SUPABASE_URL = 'https://psetlxotcksmchwwpgyp.supabase.co/rest/v1/'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzZXRseG90Y2tzbWNod3dwZ3lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzYwNDksImV4cCI6MjA5NDgxMjA0OX0.4kXyq8RxXAhDtRTjL1JUYVO5sVZ0nvnlnmCpUNTrpfM'; 
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // =========================================================================
+        // 2. LOGIKA KETIKA TOMBOL UPLOAD DIKLIK
+        // =========================================================================
+        document.getElementById('form-upload').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Mencegah halaman refresh
+            
+            const btnSubmit = document.getElementById('btn-submit');
+            const statusPesan = document.getElementById('status-pesan');
+            
+            // Ubah tampilan tombol saat proses loading
+            btnSubmit.innerText = "⏳ Sedang Mengunggah... Mohon Tunggu";
+            btnSubmit.disabled = true;
+            btnSubmit.classList.replace('bg-orange-500', 'bg-gray-400');
+            statusPesan.classList.add('hidden');
+
+            try {
+                // Ambil data dari form
+                const judul = document.getElementById('input-judul').value;
+                const kategori = document.getElementById('input-kategori').value;
+                const deskripsi = document.getElementById('input-deskripsi').value;
+                const linkInteraktif = document.getElementById('input-link-interaktif').value;
+                
+                // Ambil file PDF yang di-upload
+                const filePdf = document.getElementById('input-file-pdf').files[0];
+                
+                // --- PROSES A: UPLOAD FILE KE STORAGE SUPABASE ---
+                // Beri nama unik pada file agar tidak tertimpa jika namanya sama
+                const namaFileUnik = Date.now() + "_" + filePdf.name.replace(/\s+/g, '_');
+                
+                const { data: dataUpload, error: errorUpload } = await supabase.storage
+                    .from('modul-pdf') // Nama bucket Anda
+                    .upload('berkas/' + namaFileUnik, filePdf);
+                    
+                if (errorUpload) throw errorUpload;
+
+                // Dapatkan Link URL publik dari file PDF yang baru saja di-upload
+                const { data: publicUrlData } = supabase.storage
+                    .from('modul-pdf')
+                    .getPublicUrl('berkas/' + namaFileUnik);
+                
+                const linkPdfFirebase = publicUrlData.publicUrl;
+
+                // --- PROSES B: SIMPAN SEMUA DATA KE DATABASE ---
+                const { data: dataInsert, error: errorInsert } = await supabase
+                    .from('modul_tutorial') // Nama tabel Anda
+                    .insert([
+                        { 
+                            judul: judul, 
+                            deskripsi: deskripsi, 
+                            kategori: kategori, 
+                            link_interaktif: linkInteraktif,
+                            link_pdf: linkPdfFirebase 
+                        }
+                    ]);
+
+                if (errorInsert) throw errorInsert;
+
+                // Jika sukses semua
+                statusPesan.innerText = "✅ Modul Berhasil Diunggah & Disimpan!";
+                statusPesan.classList.replace('hidden', 'block');
+                statusPesan.classList.add('text-green-600');
+                document.getElementById('form-upload').reset(); // Kosongkan form
+
+            } catch (error) {
+                console.error(error);
+                statusPesan.innerText = "❌ Terjadi Kesalahan: " + error.message;
+                statusPesan.classList.replace('hidden', 'block');
+                statusPesan.classList.add('text-red-600');
+            } finally {
+                // Kembalikan tombol seperti semula
+                btnSubmit.innerText = "Upload & Simpan Modul";
+                btnSubmit.disabled = false;
+                btnSubmit.classList.replace('bg-gray-400', 'bg-orange-500');
+            }
+        });
+    </script>
+</body>
+</html>
