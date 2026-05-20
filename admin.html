@@ -3,74 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Upload Modul MegaBiz</title>
+    <title>MegaBiz CMS - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { mega: '#F58220' } } }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 p-10 font-sans">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen font-sans antialiased text-gray-800">
 
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md border border-gray-200">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800 border-b pb-4">CMS Admin: Tambah Modul Baru</h1>
-        
-        <form id="form-upload" class="space-y-5">
+    <div class="max-w-5xl mx-auto px-4 py-10">
+        <div class="flex items-center justify-between mb-8 border-b pb-4">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Judul Modul</label>
-                <input type="text" id="input-judul" required class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500" placeholder="Contoh: Single Transfer to My Bank">
+                <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight"><span class="text-mega">MegaBiz</span> CMS Panel</h1>
+                <p class="text-sm text-gray-500 mt-1">Sistem Pengelolaan Dokumen Panduan Intern & Ekstern</p>
+            </div>
+            <a href="index.html" class="px-4 py-2 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-lg shadow-sm hover:text-mega hover:border-mega transition-all">
+                ← Lihat Website Utama
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 sticky top-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-mega rounded-full"></span> Tambah Modul baru
+                    </h2>
+                    
+                    <form id="form-upload" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Judul Modul</label>
+                            <input type="text" id="input-judul" required class="w-full border border-gray-200 rounded-xl px-4 py-2.5 outline-none text-sm focus:border-mega focus:ring-2 focus:ring-orange-100 transition-all placeholder-gray-400" placeholder="Contoh: Single Transfer to My Bank">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Kategori Utama</label>
+                            <select id="input-kategori" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 bg-white outline-none text-sm focus:border-mega transition-all">
+                                <option value="My Task">My Task</option>
+                                <option value="Account Information">Account Information</option>
+                                <option value="Transfer Management">Transfer Management</option>
+                                <option value="Tax Payment">Tax Payment</option>
+                                <option value="Payment">Payment</option>
+                                <option value="Purchase">Purchase</option>
+                                <option value="Time Deposit">Time Deposit</option>
+                                <option value="Liquidity Management">Liquidity Management</option>
+                                <option value="Forex Management">Forex Management</option>
+                                <option value="Transaction Report">Transaction Report</option>
+                                <option value="Utilities – Report">Utilities – Report</option>
+                                <option value="Account & User Management">Account & User Management</option>
+                                <option value="Setting">Setting</option>
+                                <option value="Report">Report</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Deskripsi Singkat</label>
+                            <textarea id="input-deskripsi" required rows="3" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 outline-none text-sm focus:border-mega focus:ring-2 focus:ring-orange-100 transition-all placeholder-gray-400" placeholder="Jelaskan secara ringkas isi panduan ini..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Berkas Dokumen (PDF)</label>
+                            <div class="border-2 border-dashed border-orange-200 bg-orange-50/40 hover:bg-orange-50 p-4 rounded-xl text-center transition-colors relative cursor-pointer group">
+                                <input type="file" id="input-file-pdf" accept="application/pdf" required class="absolute inset-0 opacity-0 cursor-pointer">
+                                <svg class="w-8 h-8 text-orange-400 mx-auto mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <span id="file-label" class="text-xs font-medium text-gray-600 block truncate">Pilih berkas PDF dari komputer</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-submit" class="w-full bg-mega hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-all shadow-md hover:shadow-lg transform active:scale-[0.98]">
+                            Simpan ke Database
+                        </button>
+                        
+                        <p id="status-pesan" class="text-center font-bold text-xs p-3 rounded-xl hidden"></p>
+                    </form>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Kategori</label>
-                <select id="input-kategori" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500">
-                    <option value="My Task">My Task</option>
-                    <option value="Account Information">Account Information</option>
-                    <option value="Transfer Management">Transfer Management</option>
-                    <option value="Tax Payment">Tax Payment</option>
-                    <option value="Payment">Payment</option>
-                    <option value="Purchase">Purchase</option>
-                    <option value="Time Deposit">Time Deposit</option>
-                    <option value="Liquidity Management">Liquidity Management</option>
-                    <option value="Forex Management">Forex Management</option>
-                    <option value="Transaction Report">Transaction Report</option>
-                    <option value="Utilities – Report">Utilities – Report</option>
-                    <option value="Account & User Management">Account & User Management</option>
-                    <option value="Setting">Setting</option>
-                    <option value="Report">Report</option>
-                </select>
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-gray-400 rounded-full"></span> Data Modul Aktif
+                    </h2>
+                    <div class="overflow-x-auto rounded-xl border border-gray-100">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-gray-500 text-xs font-bold uppercase tracking-wider border-b">
+                                    <th class="p-4">Modul</th>
+                                    <th class="p-4">Kategori</th>
+                                    <th class="p-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-admin-body" class="text-sm divide-y divide-gray-100">
+                                <tr>
+                                    <td colspan="3" class="p-8 text-center text-gray-400 animate-pulse">⏳ Memuat data berkas cloud...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
-            <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Deskripsi Singkat</label>
-                <textarea id="input-deskripsi" required rows="3" class="w-full border border-gray-300 rounded px-3 py-2 outline-none focus:border-orange-500" placeholder="Deskripsi panduan..."></textarea>
-            </div>
-
-            <div class="bg-orange-50 p-4 rounded border border-orange-100">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Upload File PDF Modul</label>
-                <input type="file" id="input-file-pdf" accept="application/pdf" required class="w-full text-sm">
-            </div>
-
-            <button type="submit" id="btn-submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded mt-4 transition-colors">
-                Upload & Simpan Modul
-            </button>
-            
-            <p id="status-pesan" class="text-center font-bold text-sm hidden mt-3"></p>
-        </form>
+        </div>
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://psetlxotcksmchwwpgyp.supabase.co/rest/v1/'; 
+        const SUPABASE_URL = 'https://psetlxotcksmchwwpgyp.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzZXRseG90Y2tzbWNod3dwZ3lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzYwNDksImV4cCI6MjA5NDgxMjA0OX0.4kXyq8RxXAhDtRTjL1JUYVO5sVZ0nvnlnmCpUNTrpfM'; 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // Interaksi label file saat dipilih
+        document.getElementById('input-file-pdf').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : "Pilih berkas PDF dari komputer";
+            document.getElementById('file-label').innerText = fileName;
+        });
+
+        // Ambil Data Live Modul untuk Tabel Admin
+        async function muatTabelAdmin() {
+            const tbody = document.getElementById('tabel-admin-body');
+            try {
+                const { data, error } = await supabaseClient.from('modul_tutorial').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                tbody.innerHTML = data.length === 0 ? `<tr><td colspan="3" class="p-6 text-center text-gray-400">Belum ada modul di upload.</td></tr>` : '';
+                
+                data.forEach(item => {
+                    const row = `
+                        <tr class="hover:bg-gray-50/80 transition-colors">
+                            <td class="p-4">
+                                <div class="font-bold text-gray-800">${item.judul}</div>
+                                <div class="text-xs text-gray-400 max-w-xs truncate mt-0.5">${item.deskripsi}</div>
+                            </td>
+                            <td class="p-4"><span class="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-1 rounded-md">${item.kategori}</span></td>
+                            <td class="p-4 text-center">
+                                <button onclick="hapusModul('${item.id}')" class="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">Hapus</button>
+                            </td>
+                        </tr>`;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-red-500">Gagal: ${err.message}</td></tr>`; }
+        }
+
+        // Simpan Modul Baru
         document.getElementById('form-upload').addEventListener('submit', async function(e) {
-            e.preventDefault(); 
-            
+            e.preventDefault();
             const btnSubmit = document.getElementById('btn-submit');
             const statusPesan = document.getElementById('status-pesan');
             
-            btnSubmit.innerText = "⏳ Sedang Mengunggah... Mohon Tunggu";
+            btnSubmit.innerText = "⏳ Memproses Berkas Cloud...";
             btnSubmit.disabled = true;
-            btnSubmit.classList.replace('bg-orange-500', 'bg-gray-400');
-            statusPesan.classList.add('hidden');
+            btnSubmit.classList.replace('bg-mega', 'bg-gray-400');
+            statusPesan.className = "text-center font-bold text-xs p-3 rounded-xl bg-blue-50 text-blue-600 block mt-3 animate-pulse";
+            statusPesan.innerText = "Mengunggah berkas PDF ke Cloud Storage...";
 
             try {
                 const judul = document.getElementById('input-judul').value;
@@ -80,50 +163,45 @@
                 
                 const namaFileUnik = Date.now() + "_" + filePdf.name.replace(/\s+/g, '_');
                 
-                // Upload ke Storage
-                const { data: dataUpload, error: errorUpload } = await supabase.storage
+                const { data: dataUpload, error: errorUpload } = await supabaseClient.storage
                     .from('modul-pdf') 
                     .upload('berkas/' + namaFileUnik, filePdf);
-                    
                 if (errorUpload) throw errorUpload;
 
-                // Dapatkan Link Publik
-                const { data: publicUrlData } = supabase.storage
-                    .from('modul-pdf')
-                    .getPublicUrl('berkas/' + namaFileUnik);
+                const { data: publicUrlData } = supabaseClient.storage.from('modul-pdf').getPublicUrl('berkas/' + namaFileUnik);
                 
-                const linkPdfFirebase = publicUrlData.publicUrl;
-
-                // Simpan Data Teks ke Database (TANPA link_interaktif)
-                const { data: dataInsert, error: errorInsert } = await supabase
-                    .from('modul_tutorial')
-                    .insert([
-                        { 
-                            judul: judul, 
-                            deskripsi: deskripsi, 
-                            kategori: kategori, 
-                            link_pdf: linkPdfFirebase 
-                        }
-                    ]);
-
+                const { error: errorInsert } = await supabaseClient.from('modul_tutorial').insert([
+                    { judul: judul, deskripsi: deskripsi, kategori: kategori, link_pdf: publicUrlData.publicUrl }
+                ]);
                 if (errorInsert) throw errorInsert;
 
-                statusPesan.innerText = "✅ Modul Berhasil Diunggah & Disimpan!";
-                statusPesan.classList.replace('hidden', 'block');
-                statusPesan.classList.add('text-green-600');
-                document.getElementById('form-upload').reset(); 
-
+                statusPesan.className = "text-center font-bold text-xs p-3 rounded-xl bg-green-50 text-green-600 block mt-3";
+                statusPesan.innerText = "✅ Sukses! Modul berhasil disimpan dan live.";
+                document.getElementById('form-upload').reset();
+                document.getElementById('file-label').innerText = "Pilih berkas PDF dari komputer";
+                muatTabelAdmin();
             } catch (error) {
-                console.error(error);
-                statusPesan.innerText = "❌ Terjadi Kesalahan: " + error.message;
-                statusPesan.classList.replace('hidden', 'block');
-                statusPesan.classList.add('text-red-600');
+                statusPesan.className = "text-center font-bold text-xs p-3 rounded-xl bg-red-50 text-red-600 block mt-3";
+                statusPesan.innerText = "❌ Gagal: " + error.message;
             } finally {
-                btnSubmit.innerText = "Upload & Simpan Modul";
+                btnSubmit.innerText = "Simpan ke Database";
                 btnSubmit.disabled = false;
-                btnSubmit.classList.replace('bg-gray-400', 'bg-orange-500');
+                btnSubmit.classList.replace('bg-gray-400', 'bg-mega');
             }
         });
+
+        // Hapus Modul Otomatis
+        async function hapusModul(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus modul ini secara permanen dari server?")) {
+                try {
+                    const { error } = await supabaseClient.from('modul_tutorial').delete().eq('id', id);
+                    if (error) throw error;
+                    muatTabelAdmin();
+                } catch (err) { alert("Gagal menghapus: " + err.message); }
+            }
+        }
+
+        muatTabelAdmin();
     </script>
 </body>
 </html>

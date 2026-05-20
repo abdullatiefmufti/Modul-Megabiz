@@ -1,76 +1,79 @@
 // =========================================================================
-// 1. KONFIGURASI SUPABASE (Isi dengan data yang sama seperti di admin.html)
+// 1. KONEKSI KE SUPABASE DENGAN VARIABEL BARU AGAR TIDAK BENTROK
 // =========================================================================
-const SUPABASE_URL = 'https://psetlxotcksmchwwpgyp.supabase.co/rest/v1/'; 
+const SUPABASE_URL = 'https://psetlxotcksmchwwpgyp.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzZXRseG90Y2tzbWNod3dwZ3lwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMzYwNDksImV4cCI6MjA5NDgxMjA0OX0.4kXyq8RxXAhDtRTjL1JUYVO5sVZ0nvnlnmCpUNTrpfM'; 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const tutorialContainer = document.getElementById('tutorialContainer');
 const searchInput = document.getElementById('searchInput');
 
-// Kita siapkan variabel kosong untuk menampung data dari database cloud
-let megaBizTutorials = [];
+let megaBizTutorials = []; // Wadah penampung data cloud
+let kategoriAktif = 'Semua';
 
 // =========================================================================
-// 2. FUNGSI UNTUK MENGAMBIL DATA DARI DATABASE CLOUD (SUPABASE)
+// 2. AMBIL DATA DARI CLOUD DATABASE
 // =========================================================================
 async function ambilDataDariSupabase() {
     try {
-        // Memanggil tabel 'modul_tutorial' dan mengambil semua baris datanya
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('modul_tutorial')
-            .select('*');
+            .select('*')
+            .order('created_at', { ascending: true }); // Mengurutkan dari modul terlama ke terbaru
 
         if (error) throw error;
 
-        // Simpan data dari database ke variabel lokal kita
         megaBizTutorials = data;
-
-        // Render data tersebut ke layar website
-        renderTutorials(megaBizTutorials);
+        jalankanFilterDanCari();
 
     } catch (error) {
-        console.error("Gagal mengambil data database:", error.message);
+        console.error("Gagal sinkronisasi data:", error.message);
         tutorialContainer.innerHTML = `
-            <p class="col-span-full text-center text-red-500 py-10 font-bold">
-                ❌ Gagal memuat modul dari database cloud. Periksa konsol browser Anda.
-            </p>`;
+            <div class="col-span-full text-center bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 font-bold">
+                ❌ Gangguan Sistem: Gagal menyinkronkan data dari cloud database. (${error.message})
+            </div>`;
     }
 }
 
 // =========================================================================
-// 3. FUNGSI UNTUK MENGGAMBAR KARTU-KARTU UI DI LAYAR
+// 3. FUNGSI UNTUK MENGGAMBAR KARTU-KARTU UI SECARA PREMIUM
 // =========================================================================
 function renderTutorials(data) {
     tutorialContainer.innerHTML = ''; 
 
     if (data.length === 0) {
-        tutorialContainer.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">Modul tidak ditemukan.</p>`;
+        tutorialContainer.innerHTML = `
+            <div class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
+                <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-gray-500 font-medium">Modul panduan tidak ditemukan atau belum diunggah.</p>
+            </div>`;
         return;
     }
 
     data.forEach((item, index) => {
         const nomorUrut = index + 1; 
 
-        // Sesuai dengan nama kolom yang kita buat di database Supabase sebelumnya
         const cardHTML = `
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col hover:shadow-md transition-shadow relative">
-                <div class="absolute -top-3 -left-3 bg-orange-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm">
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-xl border border-gray-100 p-6 flex flex-col hover:-translate-y-1 transition-all duration-300 relative group overflow-hidden">
+                <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-orange-400 to-mega opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div class="absolute -top-2 -left-2 bg-gradient-to-br from-orange-400 to-mega text-white w-9 h-9 rounded-xl flex items-center justify-center font-extrabold shadow-md transform -rotate-6 group-hover:rotate-0 transition-transform">
                     ${nomorUrut}
                 </div>
                 
-                <span class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-1 rounded w-max mb-3 uppercase tracking-wider">
-                    ${item.kategori}
-                </span>
-                <h2 class="text-lg font-bold text-gray-800 mb-2 leading-tight">${item.judul}</h2>
-                <p class="text-sm text-gray-600 mb-6 flex-grow">${item.deskripsi}</p>
+                <div class="mt-2 flex items-center justify-between mb-3">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-mega bg-orange-50 px-2.5 py-1 rounded-md">
+                        ${item.kategori}
+                    </span>
+                </div>
+
+                <h2 class="text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-mega transition-colors">${item.judul}</h2>
+                <p class="text-xs leading-relaxed text-gray-500 mb-6 flex-grow line-clamp-3">${item.deskripsi}</p>
                 
-                <div class="flex flex-col gap-2 mt-auto">
-                    <a href="${item.link_pdf}" target="_blank" class="w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 rounded transition-colors text-sm">
-                        Download PDF
-                    </a>
-                    <a href="${item.link_interaktif}" class="w-full text-center border border-orange-500 text-orange-500 hover:bg-orange-50 font-medium py-2 rounded transition-colors text-sm">
-                        Buka Panduan Interaktif
+                <div class="mt-auto">
+                    <a href="${item.link_pdf}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-mega text-white font-bold py-2.5 px-4 rounded-xl transition-all duration-300 shadow-sm text-xs hover:shadow-lg">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Panduan (PDF)
                     </a>
                 </div>
             </div>
@@ -80,18 +83,42 @@ function renderTutorials(data) {
 }
 
 // =========================================================================
-// 4. FITUR PENCARIAN OTOMATIS
+// 4. LOGIKA INTEGRASI FILTER DAN PENCARIAN (GABUNGAN)
 // =========================================================================
-searchInput.addEventListener('input', (e) => {
-    const kataKunci = e.target.value.toLowerCase();
+function jalankanFilterDanCari() {
+    const kataKunci = searchInput.value.toLowerCase();
+    
     const hasilFilter = megaBizTutorials.filter(tutorial => {
-        return tutorial.judul.toLowerCase().includes(kataKunci) || 
-               tutorial.deskripsi.toLowerCase().includes(kataKunci);
+        const cocokKategori = (kategoriAktif === 'Semua') || (tutorial.kategori === kategoriAktif);
+        const cocokKataKunci = tutorial.judul.toLowerCase().includes(kataKunci) || 
+                              tutorial.deskripsi.toLowerCase().includes(kataKunci);
+        return cocokKategori && cocokKataKunci;
     });
+    
     renderTutorials(hasilFilter);
-});
+}
+
+// Fungsi Trigger Tombol Filter Tab
+window.filterKategori = function(namaKategori) {
+    kategoriAktif = namaKategori;
+    
+    // Atur efek aktif pada tombol tab
+    const tombolTab = document.querySelectorAll('.tab-btn');
+    tombolTab.forEach(btn => {
+        if(btn.innerText.includes(namaKategori) || (namaKategori === 'Semua' && btn.innerText.includes('Semua'))) {
+            btn.className = "tab-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-mega text-white transition-all shadow-sm";
+        } else {
+            btn.className = "tab-btn px-3 py-1.5 text-xs font-bold rounded-lg bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-mega transition-all";
+        }
+    });
+
+    jalankanFilterDanCari();
+}
+
+// Event input kolom pencarian
+searchInput.addEventListener('input', jalankanFilterDanCari);
 
 // =========================================================================
-// 5. EKSEKUSI PENGAMBILAN DATA SAAT WEB PERTAMA KALI DIBUKA
+// 5. BOOTSTRAP: JALANKAN LOGIKA SAAT HALAMAN DIBUKA
 // =========================================================================
 ambilDataDariSupabase();
