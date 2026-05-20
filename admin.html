@@ -213,8 +213,13 @@
 
         // Fungsi Trigger Mode Edit
         window.siapkanEdit = function(id) {
-            const modul = dataModulLokal.find(m => m.id === id);
-            if (!modul) return;
+            // PERBAIKAN: Menggunakan == agar Angka dan Teks tetap dianggap sama
+            const modul = dataModulLokal.find(m => m.id == id); 
+            
+            if (!modul) {
+                alert("Gagal: Data tidak ditemukan di memori.");
+                return;
+            }
 
             // Masukkan data ke form
             document.getElementById('input-judul').value = modul.judul;
