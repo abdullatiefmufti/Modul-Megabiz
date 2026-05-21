@@ -83,6 +83,11 @@
                         </div>
 
                         <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Link Video Tutorial (Opsional)</label>
+                            <input type="url" id="input-link-video" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 outline-none text-sm focus:border-mega transition-all placeholder-gray-400" placeholder="Contoh: https://youtube.com/...">
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Berkas Dokumen (PDF)</label>
                             <div class="border-2 border-dashed border-orange-200 bg-orange-50/40 p-4 rounded-xl text-center relative cursor-pointer">
                                 <input type="file" id="input-file-pdf" accept="application/pdf" required class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
@@ -180,11 +185,15 @@
                 tbody.innerHTML = data.length === 0 ? `<tr><td colspan="3" class="p-6 text-center text-gray-400">Belum ada modul.</td></tr>` : '';
                 
                 data.forEach(item => {
+                    // Cek apakah video ada, untuk memunculkan logo video di tabel admin
+                    const adaVideo = item.link_video ? `<span class="inline-block mt-1 bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold">🎬 Ada Video</span>` : '';
+                    
                     const row = `
                         <tr class="hover:bg-gray-50/80 transition-colors">
                             <td class="p-4">
                                 <div class="font-bold text-gray-800">${item.judul}</div>
                                 <div class="text-xs text-gray-400 max-w-xs truncate mt-0.5">${item.deskripsi}</div>
+                                ${adaVideo}
                             </td>
                             <td class="p-4"><span class="text-[10px] font-bold uppercase bg-orange-50 text-mega border border-orange-100 px-2 py-1 rounded-md">${item.kategori}</span></td>
                             <td class="p-4 text-center">
@@ -215,6 +224,7 @@
                 const kategori = document.getElementById('input-kategori').value;
                 const deskripsi = document.getElementById('input-deskripsi').value;
                 const filePdf = document.getElementById('input-file-pdf').files[0];
+                const linkVideo = document.getElementById('input-link-video').value; // Ambil nilai link video
                 
                 // 1. Upload File PDF Baru
                 const namaFileUnik = Date.now() + "_" + filePdf.name.replace(/\s+/g, '_');
@@ -225,9 +235,15 @@
                 const { data: publicUrlData } = supabaseClient.storage.from('modul-pdf').getPublicUrl('berkas/' + namaFileUnik);
                 const linkFinalPdf = publicUrlData.publicUrl;
 
-                // 3. Simpan Teks ke Database
+                // 3. Simpan Teks ke Database (termasuk link_video)
                 const { error: errorInsert } = await supabaseClient.from('modul_tutorial')
-                    .insert([{ judul: judul, deskripsi: deskripsi, kategori: kategori, link_pdf: linkFinalPdf }]);
+                    .insert([{ 
+                        judul: judul, 
+                        deskripsi: deskripsi, 
+                        kategori: kategori, 
+                        link_pdf: linkFinalPdf,
+                        link_video: linkVideo 
+                    }]);
                 if (errorInsert) throw errorInsert;
                 
                 statusPesan.innerText = "✅ Modul baru berhasil ditambahkan!";

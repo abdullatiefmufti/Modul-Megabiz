@@ -70,11 +70,18 @@ function renderTutorials(data) {
                 <h2 class="text-lg font-bold text-gray-900 mb-2 leading-snug group-hover:text-mega transition-colors">${item.judul}</h2>
                 <p class="text-xs leading-relaxed text-gray-500 mb-6 flex-grow line-clamp-3">${item.deskripsi}</p>
                 
-                <div class="mt-auto">
+                <div class="mt-auto flex flex-col gap-2">
                     <a href="${item.link_pdf}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-mega text-white font-bold py-2.5 px-4 rounded-xl transition-all duration-300 shadow-sm text-xs hover:shadow-lg">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         Download Panduan (PDF)
                     </a>
+                    
+                    ${item.link_video ? `
+                    <a href="${item.link_video}" target="_blank" class="w-full flex items-center justify-center gap-2 border border-red-500 text-red-500 hover:bg-red-50 font-bold py-2.5 px-4 rounded-xl transition-all duration-300 text-xs">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                        Tonton Video Tutorial
+                    </a>
+                    ` : ''}
                 </div>
             </div>
         `;
